@@ -5,6 +5,9 @@ param(
   [string]$ParentZone = 'lemosp.com',
   [string]$Stack = 'lucas-lemosp-site',
   [string]$Region = 'us-east-1',
+  # GitHub OIDC immutable subject: owner@ownerId/repo@repoId (gh api repos/OWNER/REPO/actions/oidc/customization/sub)
+  # Always passed explicitly: `cloudformation deploy` keeps previous values for omitted parameters.
+  [string]$GitHubRepo = 'lukelemosp@58124914/lucas.lemosp.com@1443214097',
   # Extra CloudFormation overrides, e.g. -Extra 'GitHubOidcProviderArn=arn:aws:iam::123:oidc-provider/token.actions.githubusercontent.com'
   [string[]]$Extra = @()
 )
@@ -20,7 +23,7 @@ aws cloudformation deploy `
   --region $Region `
   --stack-name $Stack `
   --template-file infra/site.yml `
-  --parameter-overrides "DomainName=$Domain" "HostedZoneId=$zoneId" @Extra `
+  --parameter-overrides "DomainName=$Domain" "HostedZoneId=$zoneId" "GitHubRepo=$GitHubRepo" @Extra `
   --capabilities CAPABILITY_IAM `
   --tags Project=lucas-lemosp-site `
   --no-fail-on-empty-changeset

@@ -17,8 +17,8 @@ Parameters:
     Description: Max requests per IP in 5 minutes before the IP is blocked (a full page visit is ~10 requests)
   GitHubRepo:
     Type: String
-    Default: lukelemosp/lucas.lemosp.com
-    Description: owner/repo allowed to deploy via GitHub Actions OIDC (main branch only)
+    Default: lukelemosp@58124914/lucas.lemosp.com@1443214097
+    Description: Repo allowed to deploy via GitHub Actions OIDC (main only). GitHub immutable subject format owner@ownerId/repo@repoId (see GET /repos/{repo}/actions/oidc/customization/sub)
   GitHubOidcProviderArn:
     Type: String
     Default: ''
