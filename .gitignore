@@ -1,0 +1,9 @@
+node_modules
+dist
+design/node_modules
+*.local
+.DS_Store
+
+# local-only design workspace (mockups, scraped data, tests)
+design/
+*.log
