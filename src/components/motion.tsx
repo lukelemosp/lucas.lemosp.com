@@ -5,6 +5,17 @@ import type { ReactNode } from 'react';
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 export const EASE_IN = [0.42, 0, 1, 1] as const;
 
+/* Springs com pouco overshoot (tom sutil/corporativo). */
+export const SPRING_SNAPPY = { type: 'spring', stiffness: 420, damping: 38, mass: 0.9 } as const;
+export const SPRING_SMOOTH = { type: 'spring', stiffness: 260, damping: 34 } as const;
+
+/** Feedback de toque/hover para botões (spread em um motion.*). */
+export const press = {
+  whileTap: { scale: 0.97 },
+  whileHover: { y: -1 },
+  transition: SPRING_SNAPPY,
+};
+
 const viewVariants: Variants = {
   initial: { opacity: 0, filter: 'blur(4px)' },
   enter: {

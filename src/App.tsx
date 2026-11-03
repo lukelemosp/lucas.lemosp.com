@@ -7,6 +7,7 @@ import { Sidebar } from './components/Sidebar';
 import { useToast } from './components/Toast';
 import { apps, profile, routes } from './content/site';
 import { useKonami } from './hooks/useKonami';
+import { usePointerGlow } from './hooks/usePointerGlow';
 import { Career, Certifications, Education } from './pages/About';
 import { AppPrivacy } from './pages/AppPrivacy';
 import { Home } from './pages/Home';
@@ -23,7 +24,20 @@ const TITLES: Record<string, string> = {
 export function App() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const toast = useToast();
+  usePointerGlow();
+
+  // Scroll edge effect: cada rota rola dentro do próprio .view.
+  useEffect(() => {
+    setScrolled(false);
+    const onScroll = (e: Event) => {
+      const el = e.target as HTMLElement;
+      if (el instanceof HTMLElement && el.classList.contains('view')) setScrolled(el.scrollTop > 4);
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => document.removeEventListener('scroll', onScroll, { capture: true });
+  }, [location.pathname]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -41,7 +55,7 @@ export function App() {
   return (
     <MotionConfig reducedMotion="user">
       <LayoutGroup>
-        <div className={`app${menuOpen ? ' menu-open' : ''}`}>
+        <div className={`app${menuOpen ? ' menu-open' : ''}`} data-scrolled={scrolled || undefined}>
           <div className="backdrop" aria-hidden="true"><div className="grid" /><div className="glow" /></div>
 
           <header className="navbar">

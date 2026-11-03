@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { AnimArticle, item } from '../components/motion';
+import { motion } from 'framer-motion';
+import { AnimArticle, item, press } from '../components/motion';
 import {
   certifications, current, highlights, languages, profile, routes, sideQuest, skills, socials, education,
 } from '../content/site';
@@ -35,10 +36,10 @@ export function Home() {
           <span className="eyebrow">Vamos conversar</span>
           <div className="socials">
             {socials.map((s) => (
-              <a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href}
+              <motion.a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href} {...press}
                 {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
                 <Icon name={s.icon} /><span className="lbl">{s.label}</span>
-              </a>
+              </motion.a>
             ))}
           </div>
         </div>
