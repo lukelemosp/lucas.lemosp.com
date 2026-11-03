@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { buildNav, profile, type NavNode } from '../content/site';
 import { Icon } from './Icon';
 import { ThemeToggle } from './ThemeToggle';
+import { useSwipeToClose } from '../hooks/useSwipeToClose';
 import { EASE_OUT } from './motion';
 
 const nav = buildNav();
@@ -70,10 +71,12 @@ function TreeNode({ node, depth }: { node: NavNode; depth: number }) {
 }
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const ref = useRef<HTMLElement>(null);
+  useSwipeToClose(ref, open, onClose);
   return (
     <>
       <div className="scrim" onClick={onClose} aria-hidden="true" />
-      <nav className="sidebar card" id="sidebar" aria-label="Navegação" data-open={open || undefined}>
+      <nav ref={ref} className="sidebar card" id="sidebar" aria-label="Navegação" data-open={open || undefined}>
         <NavLink className="brand" to="/">
           <img className="avatar-sm" src={profile.avatar} alt="" width={38} height={38} />
           <div><div className="name">{profile.shortName}</div><div className="handle">{profile.domain}</div></div>

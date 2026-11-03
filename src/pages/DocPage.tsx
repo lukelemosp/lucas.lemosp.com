@@ -1,9 +1,10 @@
 import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Icon, type IconName } from '../components/Icon';
 import { Anim, AnimArticle, AnimLi, item, NumText, reveal } from '../components/motion';
 import type { TimelineItem } from '../content/site';
+import { useZoomTarget } from '../components/zoom';
 
 type Crumb = { label: string; to?: string };
 
@@ -12,6 +13,8 @@ export function DocPage({ crumbs, eyebrow, title, icon, appIcon, meta, children 
   crumbs: Crumb[]; eyebrow: string; title: string; icon?: IconName; appIcon?: boolean;
   meta?: { icon: IconName; label: string }[]; children: ReactNode;
 }) {
+  const logoRef = useRef<HTMLDivElement>(null);
+  useZoomTarget(useLocation().pathname, logoRef);
   return (
     <div className="page-inner">
       <Anim className="crumbs" role="navigation" aria-label="Você está em" {...item}>
@@ -24,7 +27,7 @@ export function DocPage({ crumbs, eyebrow, title, icon, appIcon, meta, children 
       </Anim>
       <AnimArticle className="card doc" {...item}>
         <div className="doc-head">
-          {appIcon ? <span className="app-icon" /> : <div className="co-logo">{icon && <Icon name={icon} />}</div>}
+          {appIcon ? <span className="app-icon" /> : <div className="co-logo" ref={logoRef}>{icon && <Icon name={icon} />}</div>}
           <div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1></div>
         </div>
         {meta && <div className="meta">{meta.map((m) => <span className="fact" key={m.label}><Icon name={m.icon} /><NumText text={m.label} /></span>)}</div>}

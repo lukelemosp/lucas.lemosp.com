@@ -1,14 +1,25 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { motion } from 'framer-motion';
 import { AnimArticle, item, NumText, press, SPRING_SNAPPY } from '../components/motion';
 import { useToast } from '../components/Toast';
+import { startZoom } from '../components/zoom';
 import {
   certifications, current, highlights, languages, profile, routes, sideQuest, skills, socials, education,
 } from '../content/site';
 
 const featured = certifications.filter((c) => c.featured);
+
+/** Link do cabeçalho de um tile: o ícone do tile "voa" até o cabeçalho da página (zoom). */
+function TileLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link className="link-btn" to={to}
+      onClick={(e) => startZoom(to, e.currentTarget.closest('.tile')?.querySelector('.tile-head > .icon'))}>
+      {children}<Icon name="arrow" />
+    </Link>
+  );
+}
 
 /** Botão de e-mail dividido: abre o cliente de e-mail ou copia o endereço. */
 function EmailButton({ href, label }: { href: string; label: string }) {
@@ -78,7 +89,7 @@ export function Home() {
       <div className="bento">
         <AnimArticle className="card tile t-now" {...item}>
           <div className="tile-head"><Icon name="brief" /><span className="eyebrow">Atualmente</span>
-            <Link className="link-btn" to={routes.career}>Trajetória<Icon name="arrow" /></Link></div>
+            <TileLink to={routes.career}>Trajetória</TileLink></div>
           <div className="now-body">
             <div className="co-logo">{current.logo}</div>
             <div>
@@ -97,7 +108,7 @@ export function Home() {
 
         <AnimArticle className="card tile t-cert" {...item}>
           <div className="tile-head"><Icon name="award" /><span className="eyebrow">Certificações</span>
-            <Link className="link-btn" to={routes.certifications}>Ver as <NumText text={certifications.length} /><Icon name="arrow" /></Link></div>
+            <TileLink to={routes.certifications}>Ver as <NumText text={certifications.length} /></TileLink></div>
           <div className="list">
             {featured.map((c) => (
               <div className="item" key={c.name}>
@@ -134,7 +145,7 @@ export function Home() {
 
         <AnimArticle className="card tile t-edu" {...item}>
           <div className="tile-head"><Icon name="grad" /><span className="eyebrow">Formação</span>
-            <Link className="link-btn" to={routes.education}>Detalhes<Icon name="arrow" /></Link></div>
+            <TileLink to={routes.education}>Detalhes</TileLink></div>
           <div className="list">
             {education.map((e) => (
               <div className="item" key={e.title}>

@@ -58,6 +58,8 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
   useKonami(useCallback(() => {
     toast({ title: 'Conquista desbloqueada', detail: 'Explorador · você achou o Konami code', icon: 'trophy', placement: 'top' });
     fireConfetti();
@@ -86,7 +88,7 @@ export function App() {
             <span style={{ width: 44 }} />
           </header>
 
-          <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+          <Sidebar open={menuOpen} onClose={closeMenu} />
 
           <main className="stage">
             <AnimatePresence mode="wait" initial={false}>
