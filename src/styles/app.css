@@ -149,7 +149,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .depth-1 { padding-left: 34px; }
 .app-icon { width: 20px; height: 20px; border-radius: 5px; flex: none; position: relative; overflow: hidden; background: linear-gradient(160deg, var(--accent-btn-a), var(--accent-btn-b)); }
 .app-icon::after { content: ''; position: absolute; inset: 29%; background: var(--seal-fg); clip-path: polygon(22% 0, 100% 50%, 22% 100%); }
-.sidebar-foot { margin-top: auto; padding: 0 12px; font-size: 12px; color: var(--fg3); }
+.sidebar-foot { margin-top: auto; padding: 0 12px; font-size: 12px; color: var(--fg3); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+
+/* Segmented control de tema (estilo iOS). */
+.seg { display: inline-flex; padding: 2px; gap: 2px; border-radius: 10px; background: var(--chip); }
+.seg-opt { position: relative; width: 36px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--fg2); transition: color 0.2s; }
+.seg-opt:hover { color: var(--fg); }
+.seg-opt[aria-checked="true"] { color: var(--accent-text); }
+.seg-opt .icon { width: 15px; height: 15px; position: relative; z-index: 1; }
+.seg-pill { position: absolute; inset: 0; border-radius: 8px; background: var(--surface-solid); box-shadow: var(--shadow-sm); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* ============ stage & views ============ */
 .stage { position: relative; z-index: 1; min-width: 0; min-height: 0; }
@@ -192,8 +201,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .contact { margin-top: auto; padding-top: 22px; container-type: inline-size; }
 /* Card estreito: LinkedIn (CTA) e e-mail ocupam a linha inteira; GitHub e YouTube dividem a última. */
-@container (max-width: 420px) {
-  .social.primary, .social[href^="mailto:"] { grid-column: 1 / -1; }
+@container (max-width: 480px) {
+  .social.primary, .social.split { grid-column: 1 / -1; }
 }
 .contact .eyebrow { display: block; margin-bottom: 10px; }
 .socials { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -203,6 +212,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: box-shadow 0.2s var(--ease-out); white-space: nowrap; min-width: 0;
 }
 .social .lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* E-mail: botão dividido (abrir | copiar). */
+.social.split { padding: 0; gap: 0; align-items: stretch; }
+.split-main { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 6px 0 14px; border-radius: 99px 0 0 99px; }
+.split-copy { width: 42px; flex: none; display: grid; place-items: center; color: var(--fg2); border-left: 1px solid var(--line); border-radius: 0 99px 99px 0; transition: color 0.2s, background-color 0.2s; }
+.split-copy:hover { color: var(--accent-text); background: var(--row-hover); }
+.split-copy .icon { width: 16px; height: 16px; }
 .social:hover { box-shadow: var(--shadow-md); }
 .social.primary { background: linear-gradient(180deg, var(--accent-btn-a), var(--accent-btn-b)); color: var(--on-accent); border-color: transparent; box-shadow: var(--btn-glow); }
 
@@ -285,6 +300,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: transform 0.45s var(--spring), opacity 0.25s; max-width: calc(100vw - 32px);
 }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
+/* Conquista estilo Game Center: desce do topo, troféu dourado com "pop". */
+.toast.top { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; transform: translate(-50%, -28px); }
+.toast.top.show { transform: translate(-50%, 0); }
+.toast.top .ti { background: linear-gradient(160deg, var(--gold-a), var(--gold-b)); color: var(--gold-fg); }
+.toast.top.show .ti .icon { animation: trophy-pop 0.8s var(--spring) 0.12s both; }
+@keyframes trophy-pop { 0% { scale: 0.4; rotate: -18deg; } 60% { scale: 1.12; rotate: 6deg; } 100% { scale: 1; rotate: 0deg; } }
 .toast .ti { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); flex: none; }
 .toast .t1 { font-size: 15px; font-weight: 600; }
 .toast .t2 { font-size: 12px; color: var(--fg2); user-select: all; }

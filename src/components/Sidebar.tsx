@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { buildNav, profile, type NavNode } from '../content/site';
 import { Icon } from './Icon';
+import { ThemeToggle } from './ThemeToggle';
 import { EASE_OUT } from './motion';
 
 const nav = buildNav();
@@ -89,7 +90,10 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           ))}
         </div>
 
-        <div className="sidebar-foot">© {new Date().getFullYear()} {profile.name}</div>
+        <div className="sidebar-foot">
+          <ThemeToggle />
+          <span>© {new Date().getFullYear()} {profile.name}</span>
+        </div>
       </nav>
     </>
   );

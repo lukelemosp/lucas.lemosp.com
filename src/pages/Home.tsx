@@ -1,12 +1,42 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { motion } from 'framer-motion';
-import { AnimArticle, item, press } from '../components/motion';
+import { AnimArticle, item, press, SPRING_SNAPPY } from '../components/motion';
+import { useToast } from '../components/Toast';
 import {
   certifications, current, highlights, languages, profile, routes, sideQuest, skills, socials, education,
 } from '../content/site';
 
 const featured = certifications.filter((c) => c.featured);
+
+/** Botão de e-mail dividido: abre o cliente de e-mail ou copia o endereço. */
+function EmailButton({ href, label }: { href: string; label: string }) {
+  const toast = useToast();
+  const [copied, setCopied] = useState(false);
+  const address = href.replace(/^mailto:/, '');
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+      toast({ title: 'E-mail copiado', detail: address, icon: 'check' });
+    } catch {
+      window.location.href = href;
+    }
+  };
+  return (
+    <div className="social split">
+      <motion.a className="split-main" href={href} whileTap={{ scale: 0.98 }} transition={SPRING_SNAPPY}>
+        <Icon name="mail" /><span className="lbl">{label}</span>
+      </motion.a>
+      <motion.button type="button" className="split-copy" aria-label="Copiar e-mail" title="Copiar e-mail"
+        whileTap={{ scale: 0.88 }} transition={SPRING_SNAPPY} onClick={copy}>
+        <Icon name={copied ? 'check' : 'copy'} />
+      </motion.button>
+    </div>
+  );
+}
 
 export function Home() {
   return (
@@ -35,7 +65,7 @@ export function Home() {
         <div className="contact">
           <span className="eyebrow">Vamos conversar</span>
           <div className="socials">
-            {socials.map((s) => (
+            {socials.map((s) => s.href.startsWith('mailto:') ? <EmailButton key={s.id} href={s.href} label={s.label} /> : (
               <motion.a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href} {...press}
                 {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
                 <Icon name={s.icon} /><span className="lbl">{s.label}</span>

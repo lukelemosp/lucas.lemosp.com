@@ -1,6 +1,7 @@
 import { AnimatePresence, LayoutGroup, MotionConfig } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { fireConfetti } from './components/confetti';
 import { Icon } from './components/Icon';
 import { View } from './components/motion';
 import { Sidebar } from './components/Sidebar';
@@ -50,7 +51,10 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  useKonami(useCallback(() => toast({ title: 'Conquista desbloqueada', detail: 'Explorador · você achou o Konami code', icon: 'trophy' }), [toast]));
+  useKonami(useCallback(() => {
+    toast({ title: 'Conquista desbloqueada', detail: 'Explorador · você achou o Konami code', icon: 'trophy', placement: 'top' });
+    fireConfetti();
+  }, [toast]));
 
   return (
     <MotionConfig reducedMotion="user">

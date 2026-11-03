@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
 
-type ToastMsg = { title: string; detail: string; icon: IconName };
+/** `top` = banner de conquista (estilo Game Center); `bottom` = confirmação discreta. */
+type ToastMsg = { title: string; detail: string; icon: IconName; placement?: 'top' | 'bottom' };
 const ToastCtx = createContext<(t: ToastMsg) => void>(() => {});
 
 export const useToast = () => useContext(ToastCtx);
@@ -21,10 +22,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div className={`toast${show ? ' show' : ''}`} role="status" aria-live="polite">
+      <div className={`toast${msg?.placement === 'top' ? ' top' : ''}${show ? ' show' : ''}`} role="status" aria-live="polite">
         {msg && (
           <>
-            <span className="ti"><Icon name={msg.icon} /></span>
+            <span className="ti" key={msg.title + msg.detail}><Icon name={msg.icon} /></span>
             <div><div className="t1">{msg.title}</div><div className="t2">{msg.detail}</div></div>
           </>
         )}
