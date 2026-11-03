@@ -37,7 +37,7 @@ export function Home() {
             {socials.map((s) => (
               <a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href}
                 {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-                <Icon name={s.icon} />{s.label}
+                <Icon name={s.icon} /><span className="lbl">{s.label}</span>
               </a>
             ))}
           </div>
