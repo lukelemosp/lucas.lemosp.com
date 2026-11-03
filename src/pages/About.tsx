@@ -1,4 +1,4 @@
-import { Anim, item } from '../components/motion';
+import { Anim, reveal } from '../components/motion';
 import { career, careerStats, certifications, education, languages, routes } from '../content/site';
 import { DocPage, Timeline } from './DocPage';
 
@@ -18,7 +18,7 @@ export function Certifications() {
       meta={[{ icon: 'award', label: '4× Salesforce Certified' }, { icon: 'trophy', label: 'All Star Ranger no Trailhead' }]}>
       <div className="list big-list">
         {certifications.map((c) => (
-          <Anim className="item" key={c.name} {...item}>
+          <Anim className="item" key={c.name} {...reveal}>
             <span className={`seal ${c.kind}`}>{c.seal}</span>
             <div><div className="i1">{c.name}</div><div className="i2">{c.issuer}</div></div>
             <span className="yr">{c.date}</span>

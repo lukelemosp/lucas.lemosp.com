@@ -40,6 +40,8 @@
   --shadow-md: 0 4px 12px rgba(40, 30, 20, 0.06), 0 1px 3px rgba(40, 30, 20, 0.05);
   --shadow-lg: 0 18px 40px rgba(40, 30, 20, 0.10), 0 4px 10px rgba(40, 30, 20, 0.05);
   --btn-glow: 0 6px 18px rgba(255, 130, 0, 0.28);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  --card-glow: rgba(255, 149, 0, 0.07);
 
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-2xl: 24px; --r-3xl: 32px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -58,6 +60,8 @@
     --scrim: rgba(0, 0, 0, 0.55); --avatar-ring: #1C1C1E;
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.4); --shadow-md: 0 4px 12px rgba(0,0,0,0.35); --shadow-lg: 0 18px 40px rgba(0,0,0,0.5);
     --btn-glow: 0 6px 20px rgba(255, 140, 0, 0.22);
+    --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    --card-glow: rgba(255, 170, 60, 0.06);
     color-scheme: dark;
   }
 }
@@ -71,6 +75,8 @@
   --scrim: rgba(0, 0, 0, 0.55); --avatar-ring: #1C1C1E;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4); --shadow-md: 0 4px 12px rgba(0,0,0,0.35); --shadow-lg: 0 18px 40px rgba(0,0,0,0.5);
   --btn-glow: 0 6px 20px rgba(255, 140, 0, 0.22);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+  --card-glow: rgba(255, 170, 60, 0.06);
   color-scheme: dark;
 }
 
@@ -85,7 +91,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg2); }
-.card { background: var(--surface); border: 1px solid var(--line); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border-radius: var(--r-2xl); box-shadow: var(--shadow-sm); }
+.card { background: var(--surface); border: 1px solid var(--line); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border-radius: var(--r-2xl); box-shadow: var(--glass-hi), var(--shadow-sm); }
+
+/* Hover estilo visionOS (ver usePointerGlow): brilho que segue o cursor + leve tilt 3D. */
+.home, .bento, .page-inner { perspective: 1400px; }
+.tile, .doc { position: relative; rotate: var(--tilt-x, 0) var(--tilt-y, 1) 0 var(--tilt, 0deg); transition: rotate 0.6s var(--ease-out); }
+.tile::after, .doc::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 0.4s var(--ease-out);
+  background: radial-gradient(480px circle at var(--mx, 50%) var(--my, 50%), var(--card-glow), transparent 60%);
+}
+.tile[data-glow]::after, .doc[data-glow]::after { opacity: 1; }
+.tile[data-glow], .doc[data-glow] { transition: rotate 0.25s var(--ease-out); }
 
 /* ============ shell ============ */
 .app { position: relative; display: grid; grid-template-columns: 284px minmax(0, 1fr); height: 100%; }
@@ -115,8 +131,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; width: 100%;
   min-height: 36px; padding: 0 12px; border-radius: var(--r-md); text-align: left;
   font-size: 15px; white-space: nowrap; color: var(--fg); user-select: none;
-  transition: background-color 0.15s, color 0.2s;
+  transition: background-color 0.15s, color 0.2s, scale 0.35s var(--spring);
 }
+.row:active { scale: 0.98; }
 .row:hover { background: var(--row-hover); }
 .row[aria-current="page"] { color: var(--accent-text); font-weight: 600; }
 .row[aria-current="page"]:hover { background: transparent; }
@@ -132,7 +149,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .depth-1 { padding-left: 34px; }
 .app-icon { width: 20px; height: 20px; border-radius: 5px; flex: none; position: relative; overflow: hidden; background: linear-gradient(160deg, var(--accent-btn-a), var(--accent-btn-b)); }
 .app-icon::after { content: ''; position: absolute; inset: 29%; background: var(--seal-fg); clip-path: polygon(22% 0, 100% 50%, 22% 100%); }
-.sidebar-foot { margin-top: auto; padding: 0 12px; font-size: 12px; color: var(--fg3); }
+.sidebar-foot { margin-top: auto; padding: 0 12px; font-size: 12px; color: var(--fg3); display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+
+/* Segmented control de tema (estilo iOS). */
+.seg { display: inline-flex; padding: 2px; gap: 2px; border-radius: 10px; background: var(--chip); }
+.seg-opt { position: relative; width: 36px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--fg2); transition: color 0.2s; }
+.seg-opt:hover { color: var(--fg); }
+.seg-opt[aria-checked="true"] { color: var(--accent-text); }
+.seg-opt .icon { width: 15px; height: 15px; position: relative; z-index: 1; }
+.seg-pill { position: absolute; inset: 0; border-radius: 8px; background: var(--surface-solid); box-shadow: var(--shadow-sm); }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
 /* ============ stage & views ============ */
 .stage { position: relative; z-index: 1; min-width: 0; min-height: 0; }
@@ -146,6 +172,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tile-head .eyebrow { flex: 1; }
 .tile-head .aux { font-size: 13px; color: var(--fg2); }
 .link-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--accent-text); border-radius: 6px; }
+.link-btn { transition: scale 0.35s var(--spring); }
+.link-btn:active { scale: 0.96; }
 .link-btn .icon { width: 14px; height: 14px; transition: transform 0.25s var(--ease-out); }
 .link-btn:hover .icon { transform: translateX(3px); }
 
@@ -173,19 +201,24 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .contact { margin-top: auto; padding-top: 22px; container-type: inline-size; }
 /* Card estreito: LinkedIn (CTA) e e-mail ocupam a linha inteira; GitHub e YouTube dividem a última. */
-@container (max-width: 420px) {
-  .social.primary, .social[href^="mailto:"] { grid-column: 1 / -1; }
+@container (max-width: 480px) {
+  .social.primary, .social.split { grid-column: 1 / -1; }
 }
 .contact .eyebrow { display: block; margin-bottom: 10px; }
 .socials { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .social {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 14px;
   border-radius: 99px; background: var(--surface-solid); border: 1px solid var(--line); font-size: 15px; font-weight: 600; box-shadow: var(--shadow-sm);
-  transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out); white-space: nowrap; min-width: 0;
+  transition: box-shadow 0.2s var(--ease-out); white-space: nowrap; min-width: 0;
 }
 .social .lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.social:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.social:active { transform: scale(0.97); }
+/* E-mail: botão dividido (abrir | copiar). */
+.social.split { padding: 0; gap: 0; align-items: stretch; }
+.split-main { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 6px 0 14px; border-radius: 99px 0 0 99px; }
+.split-copy { width: 42px; flex: none; display: grid; place-items: center; color: var(--fg2); border-left: 1px solid var(--line); border-radius: 0 99px 99px 0; transition: color 0.2s, background-color 0.2s; }
+.split-copy:hover { color: var(--accent-text); background: var(--row-hover); }
+.split-copy .icon { width: 16px; height: 16px; }
+.social:hover { box-shadow: var(--shadow-md); }
 .social.primary { background: linear-gradient(180deg, var(--accent-btn-a), var(--accent-btn-b)); color: var(--on-accent); border-color: transparent; box-shadow: var(--btn-glow); }
 
 .bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: auto; align-content: stretch; gap: 12px; min-height: 0; }
@@ -198,6 +231,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .tag { font-size: 12px; padding: 3px 9px; border-radius: 7px; background: var(--chip); font-weight: 500; }
 .side-big { font-size: 34px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; }
 .side-big small { font-size: 15px; font-weight: 500; color: var(--fg2); letter-spacing: -0.01em; margin-left: 4px; }
 .side-txt { margin-top: 8px; font-size: 13px; color: var(--fg2); line-height: 1.45; }
 .side-txt b { color: var(--fg); font-weight: 600; }
@@ -247,7 +281,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .callout p { font-size: 15px; line-height: 1.5; }
 
 .timeline { list-style: none; padding: 0; position: relative; }
-.timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--line); border-radius: 2px; }
+.timeline::before, .tl-line { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--line); border-radius: 2px; }
+.tl-line { list-style: none; background: linear-gradient(var(--accent), var(--accent-line)); transform-origin: top; }
 .q { position: relative; padding: 0 0 26px 34px; }
 .q .dot { position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface-solid); border: 2px solid var(--fg3); }
 .q.now .dot { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
@@ -259,6 +294,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .big-list .item { padding: 14px 0; }
 .big-list .seal, .big-list .ic { width: 44px; height: 44px; border-radius: 12px; font-size: 12px; }
 
+/* Transição zoom (ver components/zoom.ts) */
+.zoom-ghost { position: fixed; z-index: 35; display: grid; place-items: center; pointer-events: none; color: var(--accent-text); border: 1px solid transparent; }
+.zoom-ghost > .icon { width: 100%; height: 100%; }
+
 /* toast */
 .toast {
   position: fixed; z-index: 30; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
@@ -267,6 +306,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: transform 0.45s var(--spring), opacity 0.25s; max-width: calc(100vw - 32px);
 }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
+/* Conquista estilo Game Center: desce do topo, troféu dourado com "pop". */
+.toast.top { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; transform: translate(-50%, -28px); }
+.toast.top.show { transform: translate(-50%, 0); }
+.toast.top .ti { background: linear-gradient(160deg, var(--gold-a), var(--gold-b)); color: var(--gold-fg); }
+.toast.top.show .ti .icon { animation: trophy-pop 0.8s var(--spring) 0.12s both; }
+@keyframes trophy-pop { 0% { scale: 0.4; rotate: -18deg; } 60% { scale: 1.12; rotate: 6deg; } 100% { scale: 1; rotate: 0deg; } }
 .toast .ti { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); flex: none; }
 .toast .t1 { font-size: 15px; font-weight: 600; }
 .toast .t2 { font-size: 12px; color: var(--fg2); user-select: all; }
@@ -284,13 +329,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 @media (max-width: 743px) {
   .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-  .navbar { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px)); position: relative; z-index: 4; background: var(--surface); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border-bottom: 1px solid var(--line); }
+  .navbar { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 max(8px, env(safe-area-inset-right, 0px)) 0 max(8px, env(safe-area-inset-left, 0px)); position: relative; z-index: 4; background: transparent; border-bottom: 1px solid transparent; transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+  /* Scroll edge effect: o material só aparece quando há conteúdo rolando por baixo. */
+  .app[data-scrolled] .navbar { background: var(--surface); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border-bottom-color: var(--line); box-shadow: var(--glass-hi); }
   .btn-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--accent-text); }
   .btn-icon .icon { width: 22px; height: 22px; }
-  .navbar .mid { font-size: 17px; font-weight: 600; }
+  .navbar .mid { font-size: 17px; font-weight: 600; flex: 1; min-width: 0; text-align: center; overflow: hidden; }
+  .navbar .mid > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; margin: 0; width: min(84vw, 320px); border-radius: 0 var(--r-2xl) var(--r-2xl) 0; background: var(--surface-solid); box-shadow: var(--shadow-lg); padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-left: max(12px, env(safe-area-inset-left, 0px)); transform: translateX(-104%); transition: transform 0.5s var(--ease-out); }
   .scrim { display: block; position: fixed; inset: 0; z-index: 19; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease-out); }
   .menu-open .sidebar { transform: none; }
+  .sidebar { touch-action: pan-y; }
   .menu-open .scrim { opacity: 1; pointer-events: auto; }
   .row { min-height: 44px; font-size: 17px; }
   .home { padding: 16px 16px 32px; display: flex; flex-direction: column; }

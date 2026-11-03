@@ -1,11 +1,53 @@
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { AnimArticle, item } from '../components/motion';
+import { motion } from 'framer-motion';
+import { AnimArticle, item, NumText, press, SPRING_SNAPPY } from '../components/motion';
+import { useToast } from '../components/Toast';
+import { startZoom } from '../components/zoom';
 import {
   certifications, current, highlights, languages, profile, routes, sideQuest, skills, socials, education,
 } from '../content/site';
 
 const featured = certifications.filter((c) => c.featured);
+
+/** Link do cabeçalho de um tile: o ícone do tile "voa" até o cabeçalho da página (zoom). */
+function TileLink({ to, children }: { to: string; children: ReactNode }) {
+  return (
+    <Link className="link-btn" to={to}
+      onClick={(e) => startZoom(to, e.currentTarget.closest('.tile')?.querySelector('.tile-head > .icon'))}>
+      {children}<Icon name="arrow" />
+    </Link>
+  );
+}
+
+/** Botão de e-mail dividido: abre o cliente de e-mail ou copia o endereço. */
+function EmailButton({ href, label }: { href: string; label: string }) {
+  const toast = useToast();
+  const [copied, setCopied] = useState(false);
+  const address = href.replace(/^mailto:/, '');
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+      toast({ title: 'E-mail copiado', detail: address, icon: 'check' });
+    } catch {
+      window.location.href = href;
+    }
+  };
+  return (
+    <div className="social split">
+      <motion.a className="split-main" href={href} whileTap={{ scale: 0.98 }} transition={SPRING_SNAPPY}>
+        <Icon name="mail" /><span className="lbl">{label}</span>
+      </motion.a>
+      <motion.button type="button" className="split-copy" aria-label="Copiar e-mail" title="Copiar e-mail"
+        whileTap={{ scale: 0.88 }} transition={SPRING_SNAPPY} onClick={copy}>
+        <Icon name={copied ? 'check' : 'copy'} />
+      </motion.button>
+    </div>
+  );
+}
 
 export function Home() {
   return (
@@ -34,11 +76,11 @@ export function Home() {
         <div className="contact">
           <span className="eyebrow">Vamos conversar</span>
           <div className="socials">
-            {socials.map((s) => (
-              <a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href}
+            {socials.map((s) => s.href.startsWith('mailto:') ? <EmailButton key={s.id} href={s.href} label={s.label} /> : (
+              <motion.a key={s.id} className={`social${s.primary ? ' primary' : ''}`} href={s.href} {...press}
                 {...(s.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
                 <Icon name={s.icon} /><span className="lbl">{s.label}</span>
-              </a>
+              </motion.a>
             ))}
           </div>
         </div>
@@ -47,7 +89,7 @@ export function Home() {
       <div className="bento">
         <AnimArticle className="card tile t-now" {...item}>
           <div className="tile-head"><Icon name="brief" /><span className="eyebrow">Atualmente</span>
-            <Link className="link-btn" to={routes.career}>Trajetória<Icon name="arrow" /></Link></div>
+            <TileLink to={routes.career}>Trajetória</TileLink></div>
           <div className="now-body">
             <div className="co-logo">{current.logo}</div>
             <div>
@@ -60,13 +102,13 @@ export function Home() {
 
         <AnimArticle className="card tile t-side" {...item}>
           <div className="tile-head"><Icon name="gamepad" /><span className="eyebrow">Em paralelo</span></div>
-          <div className="side-big">{sideQuest.years}<small>anos</small></div>
+          <div className="side-big"><NumText text={sideQuest.years} /><small>anos</small></div>
           <p className="side-txt"><b>{sideQuest.title}</b> {sideQuest.detail}</p>
         </AnimArticle>
 
         <AnimArticle className="card tile t-cert" {...item}>
           <div className="tile-head"><Icon name="award" /><span className="eyebrow">Certificações</span>
-            <Link className="link-btn" to={routes.certifications}>Ver as {certifications.length}<Icon name="arrow" /></Link></div>
+            <TileLink to={routes.certifications}>Ver as <NumText text={certifications.length} /></TileLink></div>
           <div className="list">
             {featured.map((c) => (
               <div className="item" key={c.name}>
@@ -103,7 +145,7 @@ export function Home() {
 
         <AnimArticle className="card tile t-edu" {...item}>
           <div className="tile-head"><Icon name="grad" /><span className="eyebrow">Formação</span>
-            <Link className="link-btn" to={routes.education}>Detalhes<Icon name="arrow" /></Link></div>
+            <TileLink to={routes.education}>Detalhes</TileLink></div>
           <div className="list">
             {education.map((e) => (
               <div className="item" key={e.title}>
