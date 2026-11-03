@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { motion } from 'framer-motion';
-import { AnimArticle, item, press, SPRING_SNAPPY } from '../components/motion';
+import { AnimArticle, item, NumText, press, SPRING_SNAPPY } from '../components/motion';
 import { useToast } from '../components/Toast';
 import {
   certifications, current, highlights, languages, profile, routes, sideQuest, skills, socials, education,
@@ -91,13 +91,13 @@ export function Home() {
 
         <AnimArticle className="card tile t-side" {...item}>
           <div className="tile-head"><Icon name="gamepad" /><span className="eyebrow">Em paralelo</span></div>
-          <div className="side-big">{sideQuest.years}<small>anos</small></div>
+          <div className="side-big"><NumText text={sideQuest.years} /><small>anos</small></div>
           <p className="side-txt"><b>{sideQuest.title}</b> {sideQuest.detail}</p>
         </AnimArticle>
 
         <AnimArticle className="card tile t-cert" {...item}>
           <div className="tile-head"><Icon name="award" /><span className="eyebrow">Certificações</span>
-            <Link className="link-btn" to={routes.certifications}>Ver as {certifications.length}<Icon name="arrow" /></Link></div>
+            <Link className="link-btn" to={routes.certifications}>Ver as <NumText text={certifications.length} /><Icon name="arrow" /></Link></div>
           <div className="list">
             {featured.map((c) => (
               <div className="item" key={c.name}>

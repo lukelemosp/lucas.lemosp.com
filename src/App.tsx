@@ -1,9 +1,9 @@
-import { AnimatePresence, LayoutGroup, MotionConfig } from 'framer-motion';
+import { AnimatePresence, LayoutGroup, MotionConfig, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { fireConfetti } from './components/confetti';
 import { Icon } from './components/Icon';
-import { View } from './components/motion';
+import { EASE_OUT, View } from './components/motion';
 import { Sidebar } from './components/Sidebar';
 import { useToast } from './components/Toast';
 import { apps, profile, routes } from './content/site';
@@ -26,15 +26,22 @@ export function App() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [inlineTitle, setInlineTitle] = useState<string | null>(null);
   const toast = useToast();
   usePointerGlow();
 
   // Scroll edge effect: cada rota rola dentro do próprio .view.
   useEffect(() => {
     setScrolled(false);
+    setInlineTitle(null);
+    const isHome = location.pathname === routes.home;
     const onScroll = (e: Event) => {
-      const el = e.target as HTMLElement;
-      if (el instanceof HTMLElement && el.classList.contains('view')) setScrolled(el.scrollTop > 4);
+      const el = e.target;
+      if (!(el instanceof HTMLElement) || !el.classList.contains('view')) return;
+      setScrolled(el.scrollTop > 4);
+      // Large title (iOS): quando o h1 da página some sob a navbar, o título vai para a navbar.
+      const h1 = isHome ? null : el.querySelector('h1');
+      setInlineTitle(h1 && h1.getBoundingClientRect().bottom < 56 ? h1.textContent : null);
     };
     document.addEventListener('scroll', onScroll, { capture: true, passive: true });
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
@@ -67,7 +74,15 @@ export function App() {
               onClick={() => setMenuOpen((o) => !o)}>
               <Icon name="menu" />
             </button>
-            <span className="mid">{profile.shortName}</span>
+            <span className="mid">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span key={inlineTitle ?? profile.shortName}
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.28, ease: EASE_OUT }}>
+                  {inlineTitle ?? profile.shortName}
+                </motion.span>
+              </AnimatePresence>
+            </span>
             <span style={{ width: 44 }} />
           </header>
 
