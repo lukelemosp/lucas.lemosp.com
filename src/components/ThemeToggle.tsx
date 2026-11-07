@@ -3,13 +3,14 @@ import { useState, type MouseEvent } from 'react';
 import { flushSync } from 'react-dom';
 import { Icon, type IconName } from './Icon';
 import { EASE_OUT, SPRING_SNAPPY } from './motion';
+import { useLocale } from '../i18n/LocaleProvider';
 
 type Pref = 'light' | 'dark' | 'auto';
 const KEY = 'theme';
-const OPTIONS: { value: Pref; label: string; icon: IconName }[] = [
-  { value: 'light', label: 'Claro', icon: 'sun' },
-  { value: 'dark', label: 'Escuro', icon: 'moon' },
-  { value: 'auto', label: 'Automático', icon: 'auto' },
+const OPTIONS: { value: Pref; icon: IconName }[] = [
+  { value: 'light', icon: 'sun' },
+  { value: 'dark', icon: 'moon' },
+  { value: 'auto', icon: 'auto' },
 ];
 
 function readPref(): Pref {
@@ -28,6 +29,7 @@ function applyPref(p: Pref) {
 /** Segmented control estilo iOS (Claro / Escuro / Automático) com revelação circular. */
 export function ThemeToggle() {
   const [pref, setPref] = useState<Pref>(readPref);
+  const { t } = useLocale();
 
   const choose = (p: Pref, e: MouseEvent<HTMLButtonElement>) => {
     if (p === pref) return;
@@ -49,9 +51,9 @@ export function ThemeToggle() {
   };
 
   return (
-    <div className="seg" role="radiogroup" aria-label="Tema">
+    <div className="seg" role="radiogroup" aria-label={t.prefs.theme}>
       {OPTIONS.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={pref === o.value} aria-label={o.label} title={o.label}
+        <button key={o.value} type="button" role="radio" aria-checked={pref === o.value} aria-label={t.prefs[o.value]} title={t.prefs[o.value]}
           className="seg-opt" onClick={(e) => choose(o.value, e)}>
           {pref === o.value && <motion.span layoutId="theme-pill" className="seg-pill" transition={SPRING_SNAPPY} />}
           <Icon name={o.icon} />

@@ -8,6 +8,8 @@
     <meta name="theme-color" content="#F7F6F3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0E0E10" media="(prefers-color-scheme: dark)" />
     <script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+    <!-- Idioma: mesmo algoritmo de src/i18n/locales.ts (?lang= → escolha salva → navegador → inglês). -->
+    <script>(function(){var ok={pt:'pt-BR',en:'en',es:'es'},b=function(s){s=(s||'').toLowerCase().split('-')[0];return ok[s]?s:null},l=b(new URLSearchParams(location.search).get('lang'));try{l=l||b(localStorage.getItem('lang'))}catch(e){}var n=navigator.languages||[navigator.language];for(var i=0;!l&&i<n.length;i++)l=b(n[i]);document.documentElement.lang=ok[l||'en']})()</script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/avatar.jpg" />
     <link rel="canonical" href="https://lucas.lemosp.com/" />

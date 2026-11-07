@@ -8,22 +8,27 @@ import { Sidebar } from './components/Sidebar';
 import { useToast } from './components/Toast';
 import { apps, profile, routes } from './content/site';
 import { useKonami } from './hooks/useKonami';
+import { useLocale } from './i18n/LocaleProvider';
+import type { UiStrings } from './i18n/ui';
 import { usePointerGlow } from './hooks/usePointerGlow';
 import { Career, Certifications, Education } from './pages/About';
 import { AppPrivacy } from './pages/AppPrivacy';
 import { Home } from './pages/Home';
 import { NotFound } from './pages/NotFound';
 
-const TITLES: Record<string, string> = {
-  [routes.home]: `${profile.name} · Arquiteto de Soluções`,
-  [routes.career]: `Trajetória · ${profile.shortName}`,
-  [routes.certifications]: `Certificações · ${profile.shortName}`,
-  [routes.education]: `Formação · ${profile.shortName}`,
-  ...Object.fromEntries(apps.map((a) => [routes.appPrivacy(a.slug), `Política de Privacidade · ${a.name}`])),
-};
+function buildTitles(t: UiStrings): Record<string, string> {
+  return {
+    [routes.home]: `${profile.name} · ${t.titles.home}`,
+    [routes.career]: `${t.nav.career} · ${profile.shortName}`,
+    [routes.certifications]: `${t.nav.certs} · ${profile.shortName}`,
+    [routes.education]: `${t.nav.edu} · ${profile.shortName}`,
+    ...Object.fromEntries(apps.map((a) => [routes.appPrivacy(a.slug), `${t.nav.privacy} · ${a.name}`])),
+  };
+}
 
 export function App() {
   const location = useLocation();
+  const { t } = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [inlineTitle, setInlineTitle] = useState<string | null>(null);
@@ -47,10 +52,11 @@ export function App() {
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
   }, [location.pathname]);
 
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
   useEffect(() => {
-    setMenuOpen(false);
-    document.title = TITLES[location.pathname] ?? `Página não encontrada · ${profile.shortName}`;
-  }, [location.pathname]);
+    document.title = buildTitles(t)[location.pathname] ?? `${t.titles.notFound} · ${profile.shortName}`;
+  }, [location.pathname, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
@@ -61,9 +67,9 @@ export function App() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useKonami(useCallback(() => {
-    toast({ title: 'Conquista desbloqueada', detail: 'Explorador · você achou o Konami code', icon: 'trophy', placement: 'top' });
+    toast({ title: t.konami.title, detail: t.konami.detail, icon: 'trophy', placement: 'top' });
     fireConfetti();
-  }, [toast]));
+  }, [toast, t]));
 
   return (
     <MotionConfig reducedMotion="user">
@@ -72,7 +78,7 @@ export function App() {
           <div className="backdrop" aria-hidden="true"><div className="grid" /><div className="glow" /></div>
 
           <header className="navbar">
-            <button className="btn-icon" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded={menuOpen}
+            <button className="btn-icon" aria-label={t.nav.openMenu} aria-controls="sidebar" aria-expanded={menuOpen}
               onClick={() => setMenuOpen((o) => !o)}>
               <Icon name="menu" />
             </button>
@@ -93,12 +99,12 @@ export function App() {
           <main className="stage">
             <AnimatePresence mode="wait" initial={false}>
               <Routes location={location} key={location.pathname}>
-                <Route path={routes.home} element={<View label="Início"><Home /></View>} />
-                <Route path={routes.career} element={<View label="Trajetória"><Career /></View>} />
-                <Route path={routes.certifications} element={<View label="Certificações"><Certifications /></View>} />
-                <Route path={routes.education} element={<View label="Formação"><Education /></View>} />
-                <Route path="/apps/:slug/privacidade" element={<View label="Política de Privacidade"><AppPrivacy /></View>} />
-                <Route path="*" element={<View label="Página não encontrada"><NotFound /></View>} />
+                <Route path={routes.home} element={<View label={t.nav.home}><Home /></View>} />
+                <Route path={routes.career} element={<View label={t.nav.career}><Career /></View>} />
+                <Route path={routes.certifications} element={<View label={t.nav.certs}><Certifications /></View>} />
+                <Route path={routes.education} element={<View label={t.nav.edu}><Education /></View>} />
+                <Route path="/apps/:slug/privacidade" element={<View label={t.nav.privacy}><AppPrivacy /></View>} />
+                <Route path="*" element={<View label={t.titles.notFound}><NotFound /></View>} />
               </Routes>
             </AnimatePresence>
           </main>

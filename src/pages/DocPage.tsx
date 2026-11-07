@@ -5,6 +5,7 @@ import { Icon, type IconName } from '../components/Icon';
 import { Anim, AnimArticle, AnimLi, item, NumText, reveal } from '../components/motion';
 import type { TimelineItem } from '../content/site';
 import { useZoomTarget } from '../components/zoom';
+import { useLocale } from '../i18n/LocaleProvider';
 
 type Crumb = { label: string; to?: string };
 
@@ -14,10 +15,11 @@ export function DocPage({ crumbs, eyebrow, title, icon, appIcon, meta, children 
   meta?: { icon: IconName; label: string }[]; children: ReactNode;
 }) {
   const logoRef = useRef<HTMLDivElement>(null);
+  const { t } = useLocale();
   useZoomTarget(useLocation().pathname, logoRef);
   return (
     <div className="page-inner">
-      <Anim className="crumbs" role="navigation" aria-label="Você está em" {...item}>
+      <Anim className="crumbs" role="navigation" aria-label={t.nav.youAreHere} {...item}>
         {crumbs.map((c, i) => (
           <span key={c.label} style={{ display: 'contents' }}>
             {i > 0 && <Icon name="chev" />}
@@ -63,16 +65,20 @@ function useDrawProgress(ref: RefObject<HTMLElement>) {
 export function Timeline({ items }: { items: TimelineItem[] }) {
   const ref = useRef<HTMLUListElement>(null);
   const scaleY = useDrawProgress(ref);
+  const { t, l, month } = useLocale();
   return (
     <ul className="timeline" ref={ref}>
       <motion.li className="tl-line" aria-hidden="true" role="presentation" style={{ scaleY }} />
       {items.map((q) => (
-        <AnimLi className={`q${q.current ? ' now' : ''}`} key={q.title + q.when} {...reveal}>
+        <AnimLi className={`q${q.current ? ' now' : ''}`} key={q.from} {...reveal}>
           <span className="dot" />
-          <div className="when">{q.when}{q.badge && <span className="st">{q.badge}</span>}</div>
-          <div className="r">{q.title}</div>
-          <div className="c">{q.org}</div>
-          {q.detail && <p className="d">{q.detail}</p>}
+          <div className="when">
+            {month(q.from)} — {q.to === 'current' ? t.dates.present : month(q.to)}
+            {q.badge && <span className="st">{t.dates.current}</span>}
+          </div>
+          <div className="r">{l(q.title)}</div>
+          <div className="c">{l(q.org)}</div>
+          {q.detail && <p className="d">{l(q.detail)}</p>}
         </AnimLi>
       ))}
     </ul>
