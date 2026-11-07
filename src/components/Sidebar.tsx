@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { buildNav, profile, type NavNode } from '../content/site';
+import { useLocale } from '../i18n/LocaleProvider';
 import { Icon } from './Icon';
+import { LangToggle } from './LangToggle';
 import { ThemeToggle } from './ThemeToggle';
 import { useSwipeToClose } from '../hooks/useSwipeToClose';
 import { EASE_OUT } from './motion';
-
-const nav = buildNav();
 
 function containsPath(node: NavNode, path: string): boolean {
   return node.to === path || (node.children ?? []).some((c) => containsPath(c, path));
@@ -22,6 +22,7 @@ function Pill() {
 
 function TreeNode({ node, depth }: { node: NavNode; depth: number }) {
   const { pathname } = useLocation();
+  const { t } = useLocale();
   const [open, setOpen] = useState(true);
   const cls = `row${depth > 0 ? ' depth-1' : ''}`;
   const lead = node.appIcon ? <span className="app-icon" /> : node.icon ? <Icon name={node.icon} /> : null;
@@ -46,7 +47,7 @@ function TreeNode({ node, depth }: { node: NavNode; depth: number }) {
             </motion.div>
           )}
         </AnimatePresence>
-        {!expanded && containsPath(node, pathname) && <span className="sr-only">(contém a página atual)</span>}
+        {!expanded && containsPath(node, pathname) && <span className="sr-only">{t.nav.containsCurrent}</span>}
       </li>
     );
   }
@@ -72,11 +73,13 @@ function TreeNode({ node, depth }: { node: NavNode; depth: number }) {
 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const ref = useRef<HTMLElement>(null);
+  const { t } = useLocale();
+  const nav = useMemo(() => buildNav(t), [t]);
   useSwipeToClose(ref, open, onClose);
   return (
     <>
       <div className="scrim" onClick={onClose} aria-hidden="true" />
-      <nav ref={ref} className="sidebar card" id="sidebar" aria-label="Navegação" data-open={open || undefined}>
+      <nav ref={ref} className="sidebar card" id="sidebar" aria-label={t.nav.label} data-open={open || undefined}>
         <NavLink className="brand" to="/">
           <img className="avatar-sm" src={profile.avatar} alt="" width={38} height={38} />
           <div><div className="name">{profile.shortName}</div><div className="handle">{profile.domain}</div></div>
@@ -86,7 +89,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           {nav.map((section, i) => (
             <div key={i}>
               {section.title && <span className="section-title eyebrow">{section.title}</span>}
-              <ul className="tree" role="tree" aria-label={section.title ?? 'Páginas'}>
+              <ul className="tree" role="tree" aria-label={section.title ?? t.nav.pages}>
                 {section.nodes.map((n) => <TreeNode key={n.id} node={n} depth={0} />)}
               </ul>
             </div>
@@ -94,7 +97,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         </div>
 
         <div className="sidebar-foot">
-          <ThemeToggle />
+          <div className="prefs"><ThemeToggle /><LangToggle /></div>
           <span>© {new Date().getFullYear()} {profile.name}</span>
         </div>
       </nav>
